@@ -44,7 +44,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds items to the action bar if it is gift.
         getMenuInflater().inflate(R.menu.menu_image__scroller, menu);
         return true;
     }
