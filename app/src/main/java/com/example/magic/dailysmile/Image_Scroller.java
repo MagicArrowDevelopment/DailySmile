@@ -15,6 +15,7 @@ import java.util.ArrayList;
 //test
 // first commit and push
 // org test
+// new comment
 public class Image_Scroller extends ActionBarActivity implements GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
