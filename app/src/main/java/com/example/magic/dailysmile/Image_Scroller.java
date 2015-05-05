@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 //test
-
+// first commit and push
 public class Image_Scroller extends ActionBarActivity implements GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
