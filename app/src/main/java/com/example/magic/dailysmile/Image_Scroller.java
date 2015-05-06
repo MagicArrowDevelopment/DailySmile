@@ -6,6 +6,10 @@
 
 package com.example.magic.dailysmile;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.view.GestureDetectorCompat;
@@ -17,10 +21,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.xml.sax.InputSource;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,6 +37,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.SAXParser;
@@ -42,6 +49,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
     GestureDetectorCompat gDetector;
     ImageView image1;
     ImageView image2;
+    TextView imageTitle;
     int[] imgs;
     int i = 0;
 
@@ -55,12 +63,16 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
     private static int PARSE_DATA = 0;
 
     public static List<XMLData> data;
+    private static List<Drawable> images;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image__scroller);
+
+        // TODO: Create addViews method
+        images = new ArrayList<Drawable>();
 
         // Download data.xml from server to device
         new downloadData().execute("data.xml");
@@ -71,10 +83,11 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         //=========================================================================================
         image1 = (ImageView) findViewById(R.id.mainImage);
         image2 = (ImageView) findViewById(R.id.adImage);
+        imageTitle = (TextView) findViewById(R.id.imageTitle);
 
         imgs = new int[]{R.drawable.ice, R.drawable.manga1, R.drawable.music};
 
-        image1.setImageResource(imgs[i]);
+        //image1.setImageResource(imgs[i]);
         image2.setImageResource(R.drawable.music);
 
         this.gDetector = new GestureDetectorCompat(this, this);
@@ -94,27 +107,29 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
                     datadir.mkdirs();
                 }
 
+                // Open connection to server
                 URL url = new URL(baseurl + params[0]);
                 URLConnection cxn = url.openConnection();
                 cxn.connect();
 
-                int lengthOfFile = cxn.getContentLength();
                 File file = new File(datadir, "/" + params[0]);
 
                 in  = new BufferedInputStream(url.openStream());
                 out = new FileOutputStream(file);
 
+                // Saves content of the serverfile to the device byte by byte
                 byte data[] = new byte[1024];
-                long total = 0;
                 int count;
                 while((count = in.read(data)) != -1) {
-                    total += count;
                     out.write(data, 0, count);
                 }
 
                 out.flush();
                 out.close();
                 in.close();
+
+                // Parses data so that the information can be read by the app
+                parseData(PARSE_DATA);
             } catch(IOException e) {
                 e.printStackTrace();
             }
@@ -126,9 +141,51 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            parseData(PARSE_DATA);
+            // Downloads each image
+            for(XMLData x : data) {
+                new downloadImage().execute(x.getLink());
+            }
+            imageTitle.setText(data.get(data.size() - 1).getTitle());
+        }
+    }
 
+    private class downloadImage extends AsyncTask<String, Integer, Drawable> {
+        @Override
+        protected Drawable doInBackground(String... params) {
+            URL url;
+            BufferedOutputStream out;
+            InputStream in;
+            BufferedInputStream buf;
 
+            try {
+                url = new URL(params[0]);
+                in = url.openStream();
+
+                buf = new BufferedInputStream(in);
+                Bitmap bMap = BitmapFactory.decodeStream(buf);
+                if(in != null) {
+                    in.close();
+                }
+                if(buf != null) {
+                    buf.close();
+                }
+
+                return new BitmapDrawable(bMap);
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Drawable drawable) {
+            super.onPostExecute(drawable);
+
+            // Adds drawable to the images list, app will be able to iterate through the list
+            images.add(drawable);
+            // Initial image when user opens app will be this
+            image1.setBackgroundDrawable(images.get(images.size() - 1));
         }
     }
 
@@ -205,14 +262,6 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-       /*if (i == 2) {
-            i = 0;
-        }
-        else {
-            i += 1;
-        }
-        image1.setImageResource(imgs[i]);
-        */
         return false;
     }
 
@@ -229,13 +278,23 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        /*
         if (i == 2) {
             i = 0;
         }
         else {
             i += 1;
+        }*/
+
+        if(i > 1) {
+            i = 0;
         }
-        image1.setImageResource(imgs[i]);
+
+        //image1.setImageResource(imgs[i]);
+        image1.setBackgroundDrawable(images.get(i));
+        imageTitle.setText(data.get(i).getTitle());
+
+        i++;
 
         return true;
     }

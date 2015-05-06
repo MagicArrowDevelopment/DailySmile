@@ -9,11 +9,11 @@
 
     <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="920dp"
+        android:layout_height="match_parent"
         android:id="@+id/mainImage"
         android:scaleType="centerCrop"
         android:layout_x="3dp"
-        android:layout_y="60dp" />
+        android:layout_y="3dp" />
 
     <ImageView
         android:layout_width="fill_parent"
@@ -22,5 +22,18 @@
         android:scaleType="centerCrop"
         android:layout_x="3dp"
         android:layout_y="1000dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/imageTitle"
+        android:background="#55FFFFFF"
+        android:textColor="#DD1A1A1A"
+        android:textStyle="bold"
+        android:layout_x="3dp"
+        android:layout_y="334dp"
+        android:gravity="center_vertical|center_horizontal" />
 
 </AbsoluteLayout>
