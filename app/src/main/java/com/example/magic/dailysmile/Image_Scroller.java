@@ -62,8 +62,8 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
     private static int PARSE_DATA = 0;
 
-    public static List<XMLData> data;
-    private static List<Drawable> images;
+    public static   List<XMLData> data;
+    private static  List<Drawable> images;
 
 
     @Override
@@ -286,7 +286,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
             i += 1;
         }*/
 
-        if(i > 1) {
+        if(i > data.size() - 1) {
             i = 0;
         }
 
