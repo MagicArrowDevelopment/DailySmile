@@ -226,12 +226,20 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        //this will be the different options menu
+        // TODO: Optional menu selections - customizable settings, etc.
+        boolean handle = false;
+        switch (id)
+        { //this statement will have different actions depending on the selection.
+            case R.id.action_exit: //this will exit the app.
+                finish();
+                handle = true;
+                break;
+            default:
+                handle = super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+        return handle;
     }
 
 
@@ -286,7 +294,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
             i += 1;
         }*/
 
-        if(i > 1) {
+        if(i > data.size() - 1) {
             i = 0;
         }
 
