@@ -6,16 +6,24 @@
 
 package com.example.magic.dailysmile;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,12 +54,10 @@ import javax.xml.parsers.SAXParserFactory;
 public class Image_Scroller extends ActionBarActivity implements GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
 
-    GestureDetectorCompat gDetector;
-    ImageView image1;
-    ImageView image2;
-    TextView imageTitle;
-    int[] imgs;
-    int i = 0;
+    private GestureDetectorCompat gDetector;
+    private ImageView image;
+    private TextView imageTitle;
+    private static int currentImage = 0;
 
     // Link to server location where images information are stored
     private static String baseurl   = "http://104.131.67.54/DailySmile/";
@@ -63,8 +69,8 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
     private static int PARSE_DATA = 0;
 
     public static   List<XMLData> data;
-    private static  List<Drawable> images;
-
+    private static  List<Bitmap> images;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,27 +78,24 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         setContentView(R.layout.activity_image__scroller);
 
         // TODO: Create addViews method
-        images = new ArrayList<Drawable>();
+        images = new ArrayList<Bitmap>();
 
         // Download data.xml from server to device
         new downloadData().execute("data.xml");
 
+        findViews();
 
-
-        // TODO: Move all of this to its own method
-        //=========================================================================================
-        image1 = (ImageView) findViewById(R.id.mainImage);
-        image2 = (ImageView) findViewById(R.id.adImage);
-        imageTitle = (TextView) findViewById(R.id.imageTitle);
-
-        imgs = new int[]{R.drawable.ice, R.drawable.manga1, R.drawable.music};
-
-        //image1.setImageResource(imgs[i]);
-        image2.setImageResource(R.drawable.music);
+        // Loads the font from the assets folder and assigns it to the title
+        Typeface tf = Typeface.createFromAsset(getAssets(), "crayon kids.ttf");
+        imageTitle.setTypeface(tf);
 
         this.gDetector = new GestureDetectorCompat(this, this);
         gDetector.setOnDoubleTapListener(this);
-        //=========================================================================================
+    }
+
+    public void findViews() {
+        image = (ImageView) findViewById(R.id.mainImage);
+        imageTitle  = (TextView) findViewById(R.id.imageTitle);
     }
 
     public class downloadData extends AsyncTask<String, String, String> {
@@ -141,17 +144,26 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
+            new downloadImage().execute(data.get(currentImage).getLink());
             // Downloads each image
-            for(XMLData x : data) {
-                new downloadImage().execute(x.getLink());
-            }
-            imageTitle.setText(data.get(data.size() - 1).getTitle());
+            imageTitle.setText(data.get(currentImage).getTitle());
         }
     }
 
-    private class downloadImage extends AsyncTask<String, Integer, Drawable> {
+    private class downloadImage extends AsyncTask<String, Integer, Bitmap> {
         @Override
-        protected Drawable doInBackground(String... params) {
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = new ProgressDialog(Image_Scroller.this, R.style.progressStyle);
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Downloading...");
+            progressDialog.show();
+            //progressDialog.show(Image_Scroller.this, null, "Downloading...");
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
             URL url;
             BufferedOutputStream out;
             InputStream in;
@@ -163,6 +175,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
                 buf = new BufferedInputStream(in);
                 Bitmap bMap = BitmapFactory.decodeStream(buf);
+
                 if(in != null) {
                     in.close();
                 }
@@ -170,7 +183,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
                     buf.close();
                 }
 
-                return new BitmapDrawable(bMap);
+                return bMap;
             } catch(IOException e) {
                 e.printStackTrace();
             }
@@ -179,13 +192,40 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         }
 
         @Override
-        protected void onPostExecute(Drawable drawable) {
-            super.onPostExecute(drawable);
+        protected void onPostExecute(Bitmap bm) {
+            super.onPostExecute(bm);
+
+            progressDialog.dismiss();
 
             // Adds drawable to the images list, app will be able to iterate through the list
-            images.add(drawable);
+            images.add(bm);
             // Initial image when user opens app will be this
-            image1.setBackgroundDrawable(images.get(images.size() - 1));
+            image.setImageBitmap(roundCornerImage(bm, 20));
+            imageTitle.setText(data.get(currentImage).getTitle());
+        }
+
+        // Loads the image with a rounded border
+        public Bitmap roundCornerImage(Bitmap src, float round) {
+            Bitmap result = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+            BitmapShader shader = new BitmapShader(src, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+
+            Canvas canvas = new Canvas(result);
+            canvas.drawARGB(0, 0, 0, 0);
+
+            final Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setColor(Color.BLACK);
+            paint.setShader(shader);
+
+            final Rect rect = new Rect(0, 0, src.getWidth(), src.getHeight());
+            final RectF rectF = new RectF(rect);
+
+            canvas.drawRoundRect(rectF, round, round, paint);
+
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(src, rect, rect, paint);
+
+            return result;
         }
     }
 
@@ -232,7 +272,7 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
         switch (id)
         { //this statement will have different actions depending on the selection.
             case R.id.action_exit: //this will exit the app.
-                finish();
+                this.finish();
                 handle = true;
                 break;
             default:
@@ -286,23 +326,16 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        currentImage++;
+        // TODO: decrease currentImage on left swipes
+        if(currentImage > data.size() - 1)
+            currentImage = 0;
+
         /*
-        if (i == 2) {
-            i = 0;
-        }
-        else {
-            i += 1;
-        }*/
-
-        if(i > data.size() - 1) {
-            i = 0;
-        }
-
-        //image1.setImageResource(imgs[i]);
-        image1.setBackgroundDrawable(images.get(i));
-        imageTitle.setText(data.get(i).getTitle());
-
-        i++;
+        Will download the image and then assign the title on the same thread. Instead of loading
+        the image and title in two separate threads
+         */
+        new downloadImage().execute(data.get(currentImage).getLink());
 
         return true;
     }
