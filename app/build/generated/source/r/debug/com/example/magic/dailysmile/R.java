@@ -1323,12 +1323,13 @@ containing a value of this type.
         public static final int action_bar_subtitle=0x7f09001f;
         public static final int action_bar_title=0x7f09001e;
         public static final int action_context_bar=0x7f090032;
+        public static final int action_exit=0x7f090042;
         public static final int action_menu_divider=0x7f090002;
         public static final int action_menu_presenter=0x7f090003;
         public static final int action_mode_bar=0x7f09002e;
         public static final int action_mode_bar_stub=0x7f09002d;
         public static final int action_mode_close_button=0x7f090020;
-        public static final int action_settings=0x7f090042;
+        public static final int action_settings=0x7f090043;
         public static final int activity_chooser_view_content=0x7f090021;
         public static final int adImage=0x7f090040;
         public static final int always=0x7f090016;
@@ -1437,9 +1438,10 @@ containing a value of this type.
         public static final int abc_shareactionprovider_share_with=0x7f0b000d;
         public static final int abc_shareactionprovider_share_with_application=0x7f0b000e;
         public static final int abc_toolbar_collapse_description=0x7f0b000f;
-        public static final int action_settings=0x7f0b0010;
-        public static final int app_name=0x7f0b0011;
-        public static final int hello_world=0x7f0b0012;
+        public static final int action_exit=0x7f0b0010;
+        public static final int action_settings=0x7f0b0011;
+        public static final int app_name=0x7f0b0012;
+        public static final int hello_world=0x7f0b0013;
     }
     public static final class style {
         public static final int Animation_AppCompat_DropDownUp=0x7f0c0000;
