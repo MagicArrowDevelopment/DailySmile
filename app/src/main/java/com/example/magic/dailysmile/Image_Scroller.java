@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.xml.sax.InputSource;
 
@@ -71,6 +72,10 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
     public static   List<XMLData> data;
     private static  List<Bitmap> images;
     ProgressDialog progressDialog;
+
+    // This is for right2left or left2right swipes
+    private float x1,x2;
+    static final int MIN_DISTANCE = 150;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -326,24 +331,69 @@ public class Image_Scroller extends ActionBarActivity implements GestureDetector
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        currentImage++;
+        //currentImage++;
         // TODO: decrease currentImage on left swipes
-        if(currentImage > data.size() - 1)
-            currentImage = 0;
+        //if(currentImage > data.size() - 1)
+        //    currentImage = 0;
 
         /*
         Will download the image and then assign the title on the same thread. Instead of loading
         the image and title in two separate threads
          */
-        new downloadImage().execute(data.get(currentImage).getLink());
+        //new downloadImage().execute(data.get(currentImage).getLink());
 
-        return true;
+        return false;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        this.gDetector.onTouchEvent(event);
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = event.getX();
+                float deltaX = x2 - x1;
+
+                if (Math.abs(deltaX) > MIN_DISTANCE)
+                {
+                    // left2right swipe
+                    if (x2 > x1)
+                    {
+                        if(currentImage == 0)
+                        {
+                            currentImage = data.size();
+                        }
+
+                        currentImage --;
+                        new downloadImage().execute(data.get(currentImage).getLink());
+                    }
+
+                    // right2left swipe
+                    else
+                    {
+                        currentImage ++;
+
+                        if(currentImage > data.size() - 1)
+                        {
+                            currentImage = 0;
+                        }
+
+                        new downloadImage().execute(data.get(currentImage).getLink());
+                    }
+
+                }
+                else
+                {
+                    // consider as something else - a screen tap for example
+                }
+                break;
+        }
+    //    this.gDetector.onTouchEvent(event);
         // Be sure to call the superclass implementation
         return super.onTouchEvent(event);
-    }
+     }
+
+
 }

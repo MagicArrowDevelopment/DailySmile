@@ -5,8 +5,8 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="progressStyle" parent="android:Theme.Holo.Dialog">
-        <item name="android:alertDialogStyle">@style/CustomAlertDialogStyle</item>
+    <style name="progressStyle" parent="android:Theme.Dialog">
+        <item name="android:centerDark">#FFFF00</item>
         <item name="android:textColorPrimary">#000000</item>
     </style>
 
@@ -22,6 +22,6 @@
         <item name="android:topBright">@color/transparent</item>
         <item name="android:topDark">@color/transparent</item>
     </style>
-    <color name="transparent">#FFFFFF</color>
+    <color name="transparent">#FFFF00</color>
 
 </resources>
