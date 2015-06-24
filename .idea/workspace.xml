@@ -18,7 +18,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: com.example.magic.dailysmile" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a700131-824a-4d73-95c0-bf9924ce0ffa" name="Default" comment="Added r2l and l2r swipes switching pics properly">
+    <list default="true" id="5a700131-824a-4d73-95c0-bf9924ce0ffa" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Daily Smile.iws" />
@@ -1165,7 +1165,11 @@
       <created>1435190071168</created>
       <updated>1435190071168</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added r2l and l2r swipes switching pics properly">
+      <created>1435190159511</created>
+      <updated>1435190159511</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
