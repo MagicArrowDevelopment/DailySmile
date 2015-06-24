@@ -1169,7 +1169,11 @@
       <created>1435190159511</created>
       <updated>1435190159511</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Added r2l and l2r swipes switching pics properly">
+      <created>1435190168451</created>
+      <updated>1435190168451</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
